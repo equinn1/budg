@@ -1,7 +1,9 @@
 #
 library(tidyr)
 
-setwd('~/EG/school_committee/finance_subcommittee')
+setwd('~/EG/school_committee/finance_subcommittee/budg')
+
+budg = read.csv("../ucoa_history.csv")
 
 str(budg)
 
@@ -22,3 +24,5 @@ summary(expn$logact)
 library(rethinking)
 
 sd(expn$logact)
+
+length(table(expn$obj))
