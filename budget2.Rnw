@@ -1,0 +1,58 @@
+\documentclass{article}
+
+\begin{document}
+
+<<>>=
+library(tidyr)
+
+budg = read.csv("ucoa_history.csv")
+
+str(budg)
+
+budg$absact = (budg$actual>0.0)*budg$actual
+
+budg$logact = log(budg$absact+1)
+
+str(budg)
+
+expn = budg[budg$loc != 99998,]
+expn$Loc = as.factor(expn$loc)
+levels(expn$Loc)
+
+str(expn)
+
+summary(expn)
+
+boxplot(expn$absact)
+boxplot(expn$logact)
+@
+
+<<>>=
+boxplot(expn$logact~as.factor(expn$year))
+boxplot(expn$logact~as.factor(expn$func))
+table(expn$func)
+table(expn$prog)
+table(expn$sub)
+table(expn$obj)
+table(expn$jc)
+table(expn$loc)
+table(expn$fund)
+@
+
+<<>>=
+trans = expn[expn$func==311,]
+boxplot(trans$logact~as.factor(trans$year))
+@
+
+<<>>=
+teach = expn[expn$func==111,]
+boxplot(teach$logact~as.factor(teach$year))
+@
+
+<<>>=
+library(ggplot2)
+ggplot(data = expn, aes(x = year, y = logact, 
+      fill = prog)) + geom_bar(stat="identity") + coord_flip()
+@
+
+\end{document}
