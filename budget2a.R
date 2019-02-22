@@ -2,7 +2,7 @@ library(tidyr)
 library(rethinking)
 
 
-budg = read.csv("google/ucoa_history.csv")
+budg = read.csv("../ucoa_history.csv")
 
 budg$loc = as.factor(budg$loc)
 budg$func = as.factor(budg$func)
@@ -37,6 +37,10 @@ f111a$rskeyi = as.integer(f111a$rskey)
 f111b = f111a[c('rskeyi','logact','year')]
 f111c = f111b[f111b$logact > 0.0,]
 
+summary(f111c)
+
+table(f111c$rskeyi)
+
 m13.2 <- ulam(
   alist(
     logact ~ dnorm( u , sigma2 ) ,
@@ -45,6 +49,6 @@ m13.2 <- ulam(
     a_bar ~ dnorm( 0 , 1.5 ) ,
     sigma ~ dexp( 1 ),
     sigma2 ~ dexp(1)
-  ), data=f111c , chains=4 , log_lik=FALSE)
+  ), data=f111b , chains=4 , log_lik=FALSE)
 summary(m13.2)
-table(f111b$rskeyi)
+
