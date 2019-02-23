@@ -19,8 +19,8 @@ model{
     Rho ~ lkj_corr( 2 );
     sigma ~ exponential( 1 );
     sigma_level ~ exponential( 1 );
-    b ~ normal( -1 , 0.5 );
-    a ~ normal( 5 , 2 );
+    b ~ normal( 0 , 0.5 );
+    a ~ normal( 5 , 3 );
     {
     vector[2] YY[n_levels];
     vector[2] MU;
