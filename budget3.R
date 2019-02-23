@@ -35,13 +35,16 @@ budg$fund = as.factor(budg$fund)
 budg$jc = as.factor(budg$jc)
 budg$loc = as.factor(budg$loc)
 
-obj51110 = budg[budg$obj == 51110,]
+#obj51110 = budg[budg$obj == 51110,]
+obj51110 = budg
 
-obj51110 = obj51110[obj51110$year <= 2012,]
+table(budg$year)
+
+obj51110 = obj51110[(obj51110$year >= 2016)&(obj51110$year <= 2017),]
 
 obj51110$func_jc = droplevels(interaction(obj51110$func,obj51110$jc,obj51110$loc))
 
-table(obj51110$func_jc)
+boxplot(obj51110$logexp~obj51110$func_jc)
 
 level = as.integer(obj51110$func_jc)
 year = obj51110$year-2009
@@ -58,10 +61,12 @@ summary(stanfit)
 
 pd = extract(stanfit)
 
+mean(pd$a)
+mean(pd$b)
 
 
-for(i in 1:157){
-  fv = mean((exp(pd$a_level[,i] + 2*pd$b_level[,i]))/(exp(pd$a_level[,i]+1*pd$b_level[,i])))
+for(i in 1:383){
+  fv = mean(exp(pd$a_level[,i] + 2*pd$b_level[,i]))
   print(fv)
 }
 fl11 = exp(pd$a_level[,1] + 1*pd$b_level[,1])
