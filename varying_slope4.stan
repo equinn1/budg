@@ -1,7 +1,7 @@
 data{
     int N;
     int n_levels;
-    vector[N] logexp;
+    vector[N] logact;
     int year[N];
     int level[N];
 }
@@ -11,16 +11,22 @@ parameters{
     real a;
     real b;
     vector<lower=0>[2] sigma_level;
-    real<lower=0> sigma;
+    vector<lower=0>[n_levels] sig;
+    real<lower=0> sig_a;
     corr_matrix[2] Rho;
 }
 model{
     vector[N] mu;
+    vector[N] sigma;
     Rho ~ lkj_corr( 2 );
-    sigma ~ exponential( 1 );
+    sig_a ~ uniform( 0 , 2 );
+    sig ~ exponential( sig_a );
+    for ( i in 1:N ) {
+        sigma[i] = sig[level[i]];
+    }
     sigma_level ~ exponential( 1 );
-    b ~ normal( 0 , 0.5 );
-    a ~ normal( 5 , 3 );
+    b ~ normal( -1 , 0.5 );
+    a ~ normal( 5 , 2 );
     {
     vector[2] YY[n_levels];
     vector[2] MU;
@@ -31,13 +37,15 @@ model{
     for ( i in 1:N ) {
         mu[i] = a_level[level[i]] + b_level[level[i]] * year[i];
     }
-    logexp ~ normal( mu , sigma );
+    logact ~ normal( mu , sigma );
 }
 generated quantities{
     vector[N] log_lik;
     vector[N] mu;
+    vector[N] sigma;
     for ( i in 1:N ) {
         mu[i] = a_level[level[i]] + b_level[level[i]] * year[i];
+        sigma[i] = sig[level[i]];
     }
-    for ( i in 1:N ) log_lik[i] = normal_lpdf( logexp[i] | mu[i] , sigma );
+    for ( i in 1:N ) log_lik[i] = normal_lpdf( logact[i] | mu[i] , sigma[i] );
 }

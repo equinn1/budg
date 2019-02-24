@@ -1,29 +1,25 @@
-#
 rm(list=ls())
 
 library(tidyr)
 
-
-setwd('~/EG/school_committee/finance_subcommittee/budg')
-
-budg = read.csv("../ucoa_history.csv")
+budg =read.csv("../ucoa_history.csv")
 
 str(budg)
 
 budg$absact = (budg$actual>0.0)*budg$actual
 
-budg$logexp = log(budg$absact+1)
+budg$logact = log(budg$absact+1)
 
 str(budg)
 
-boxplot(budg$logexp)
+boxplot(budg$logact)
 
 expn = budg[budg$loc != 99998,]
 
-boxplot(expn$logexp)
+boxplot(expn$logact)
 
-summary(expn$logexp)
-sd(expn$logexp)
+summary(expn$logact)
+sd(expn$logact)
 
 library(rstan)
 
@@ -35,27 +31,31 @@ budg$fund = as.factor(budg$fund)
 budg$jc = as.factor(budg$jc)
 budg$loc = as.factor(budg$loc)
 
-#obj51110 = budg[budg$obj == 51110,]
-obj51110 = budg
+table(budg$obj)
 
-table(budg$year)
+obj51110 = budg[budg$obj %in% c(51110,52301,52302),]
+#obj51110 = budg
 
-obj51110 = obj51110[(obj51110$year >= 2016)&(obj51110$year <= 2017),]
+obj51110 = obj51110[(obj51110$year >= 2012)&(obj51110$year <= 2016),]
+
+obj51110 = obj51110[obj51110$actual > 50.0,]
 
 obj51110$func_jc = droplevels(interaction(obj51110$func,obj51110$jc,obj51110$loc))
 
-boxplot(obj51110$logexp~obj51110$func_jc)
+boxplot(obj51110$logact~obj51110$func_jc)
 
-level = as.integer(obj51110$func_jc)
-year = obj51110$year-2009
-logexp = obj51110$logexp
-N = nrow(obj51110)
+level    = as.integer(obj51110$func_jc)
+yr       = obj51110$year-2014
+logact   = obj51110$logact-mean(obj51110$logact)   #centered
+N        = nrow(obj51110)
 n_levels = length(table(obj51110$func_jc))
+
+table(yr)
 
 rstan_options(auto_write = TRUE)              #use multiple cores
 options(mc.cores = parallel::detectCores())   #if we have them
 
-stanfit = stan("varying_slope.stan",chains=4)
+stanfit = stan("varying_slope3.stan",chains=4,iter=2000,control = list(adapt_delta = 0.95,max_treedepth = 12))
 
 summary(stanfit)
 
@@ -65,10 +65,17 @@ mean(pd$a)
 mean(pd$b)
 
 
-for(i in 1:383){
-  fv = mean(exp(pd$a_level[,i] + 2*pd$b_level[,i]))
-  print(fv)
+means = vector('numeric')
+sds   = vector('numeric')
+
+v_actual = 
+
+for(i in 1:n_levels){
+  means = c(means,mean(exp(pd$a_level[,i] + 2*pd$b_level[,i]+mean(obj51110$logact))))
+  sds = c(sds,pd$sig[i])
 }
+boxplot(means)
+boxplot(sds)
 fl11 = exp(pd$a_level[,1] + 1*pd$b_level[,1])
 mean(fl11)
 fl12 = exp(pd$a_level[,1] + 2*pd$b_level[,1])
