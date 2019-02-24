@@ -1,7 +1,7 @@
 data{
     int N;
     int n_levels;
-    vector[N] logact;
+    vector[N] clogact;
     int yr[N];
     int level[N];
 }
@@ -38,7 +38,7 @@ model{
         mu[i] = a_level[level[i]] + b_level[level[i]] * yr[i];
         sigma[i] = sig[level[i]];
     }
-    logact ~ normal( mu , sigma );
+    clogact ~ normal( mu , sigma );
 }
 generated quantities{
     vector[N] log_lik;
@@ -48,5 +48,5 @@ generated quantities{
         mu[i] = a_level[level[i]] + b_level[level[i]] * yr[i];
         sigma[i] = sig[level[i]];
     }
-    for ( i in 1:N ) log_lik[i] = normal_lpdf( logact[i] | mu[i] , sigma[i] );
+    for ( i in 1:N ) log_lik[i] = normal_lpdf( clogact[i] | mu[i] , sigma[i] );
 }

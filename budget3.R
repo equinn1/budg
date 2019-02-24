@@ -42,15 +42,14 @@ obj51110 = obj51110[obj51110$actual > 50.0,]
 
 obj51110$func_jc = droplevels(interaction(obj51110$func,obj51110$jc,obj51110$loc))
 
-boxplot(obj51110$logact~obj51110$func_jc)
-
 level    = as.integer(obj51110$func_jc)
 yr       = obj51110$year-2014
-logact   = obj51110$logact-mean(obj51110$logact)   #centered
+mean_logact = mean(obj51110$logact)
+obj51110$clogact   = obj51110$logact-mean_logact   #centered
+clogact   = obj51110$clogact
 N        = nrow(obj51110)
 n_levels = length(table(obj51110$func_jc))
-
-table(yr)
+boxplot(obj51110$clogact~obj51110$func_jc)
 
 rstan_options(auto_write = TRUE)              #use multiple cores
 options(mc.cores = parallel::detectCores())   #if we have them
@@ -68,22 +67,11 @@ mean(pd$b)
 means = vector('numeric')
 sds   = vector('numeric')
 
-v_actual = 
-
 for(i in 1:n_levels){
   means = c(means,mean(exp(pd$a_level[,i] + 2*pd$b_level[,i]+mean(obj51110$logact))))
   sds = c(sds,pd$sig[i])
 }
-boxplot(means)
+sum(means)
 boxplot(sds)
-fl11 = exp(pd$a_level[,1] + 1*pd$b_level[,1])
-mean(fl11)
-fl12 = exp(pd$a_level[,1] + 2*pd$b_level[,1])
-mean(fl12)
-mean(fl12)/mean(fl11)
-fl41 = exp(pd$a_level[,4] + 1*pd$b_level[,4])
-mean(fl41)
-fl42 = exp(pd$a_level[,4] + 2*pd$b_level[,4])
-mean(fl42)
-mean(fl42)/mean(fl41)
+
 
