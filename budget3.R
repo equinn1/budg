@@ -1,5 +1,6 @@
 rm(list=ls())
 
+library(rstan)
 library(tidyr)
 
 budg =read.csv("../ucoa_history.csv")
@@ -18,12 +19,8 @@ expn = budg[budg$loc != 99998,]
 
 boxplot(expn$logact)
 
-summary(expn$logact)
-sd(expn$logact)
+#save(budg,file="../budg.Rdata")
 
-library(rstan)
-
-budg$t = as.numeric(budg$year - 2010)
 budg$obj = as.factor(budg$obj)
 budg$prog = as.factor(budg$prog)
 budg$func = as.factor(budg$func)
@@ -33,14 +30,19 @@ budg$loc = as.factor(budg$loc)
 
 table(budg$obj)
 
-obj51110 = budg[budg$obj %in% c(51110,52301,52302),]
+#obj51110 = budg[budg$obj %in% c(51110,52301,52302,52102,52103),]
+obj51110 = budg[budg$obj == 52302,]
 #obj51110 = budg
 
 obj51110 = obj51110[(obj51110$year >= 2012)&(obj51110$year <= 2016),]
 
-obj51110 = obj51110[obj51110$actual > 50.0,]
+summary(obj51110$actual)
 
-obj51110$func_jc = droplevels(interaction(obj51110$func,obj51110$jc,obj51110$loc))
+#obj51110 = obj51110[obj51110$actual > 50.0,]
+
+obj51110$func_jc = droplevels(interaction(obj51110$obj,obj51110$func))
+obj51110$func_jc = droplevels(interaction(obj51110$func_jc,obj51110$jc))
+obj51110$func_jc = droplevels(interaction(obj51110$func_jc,obj51110$loc))
 
 level    = as.integer(obj51110$func_jc)
 yr       = obj51110$year-2014
@@ -50,11 +52,12 @@ clogact   = obj51110$clogact
 N        = nrow(obj51110)
 n_levels = length(table(obj51110$func_jc))
 boxplot(obj51110$clogact~obj51110$func_jc)
-
+summary(expn$clogact)
+sd(expn$clogact)
 rstan_options(auto_write = TRUE)              #use multiple cores
 options(mc.cores = parallel::detectCores())   #if we have them
 
-stanfit = stan("varying_slope3.stan",chains=4,iter=2000,control = list(adapt_delta = 0.95,max_treedepth = 12))
+stanfit = stan("varying_slope3.stan",chains=4,iter=2000,control = list(adapt_delta = 0.80,max_treedepth = 12))
 
 summary(stanfit)
 
@@ -73,5 +76,7 @@ for(i in 1:n_levels){
 }
 sum(means)
 boxplot(sds)
+
+save(stanfit,file="../obj52302_stanfit.Rdata")
 
 
