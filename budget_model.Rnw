@@ -1,0 +1,36 @@
+\documentclass{article}
+
+\begin{document}
+
+\title{Bespoke School Department Finance Model}
+\maketitle
+\section*{Objectives}
+Use modern statistical modeling techniques to:
+\begin{enumerate}
+\item Develop a multiyear forecasting capability
+\item Support near and long term decision making
+\item Facilitate standardization of the budget process
+\item Provide a historical record of financial forecasts
+\item Promote realistic expectations by quantirying uncertainty and variability in financial forecasts
+\end{enumerate}
+\par\vspace{0.4 cm}
+
+
+
+\section{Long Term Forecasts}
+The budget process as it exists can be viewed as consisting of the following components:
+\begin{enumerate}
+\item A "status quo" model that predicts expenditures for the coming year if no changes are made to the operation.
+\item A set of aspirational changes to the operation.
+\item A set of predictions from the combined status quo and aspirational expenditures.
+\end{enumerate}
+\par\vspace{0.4 cm}
+Item 1 is basically a statistical inference problem, with a goal of predicting the expected value of expenditures in the coming year.  In a probabilistic model setting, it is the conditional expectation of the coming year's expenditures given the historical record of expenditures in previous years.
+\par\vspace{0.4 cm}
+Item 2 is necessary to satisfy the continuous improvement requirement of the Basic Educational Program (BEP).  
+\par\vspace{0.4 cm}
+Item 3 combines the results of items 1 and 2. 
+
+
+
+\end{document}
